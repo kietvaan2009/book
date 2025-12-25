@@ -150,7 +150,7 @@
 
     <div id="lock-overlay">
         <canvas id="lock-canvas"></canvas>
-        <div id="guide-text">Draw 'N' to Unlock</div>
+        <div id="guide-text">Vẽ chữ 'I' để mở khóa</div>
         <div id="final-text">
             <span style="font-size: 2em; font-weight: 400; transform: scaleY(1.4); display: inline-block; transform-origin: bottom;">N</span>A YÊU
         </div>
@@ -187,8 +187,12 @@
             isLocked: true,
             isSequenceActive: false,
             canvas: null, ctx: null,
-            // Points for 'N' shape
-            points: [ { x: 0.35, y: 0.75 }, { x: 0.35, y: 0.25 }, { x: 0.65, y: 0.75 }, { x: 0.65, y: 0.25 } ],
+            // Points for 'I' shape
+            points: [ 
+             { x: 0.5, y: 0.25 }, // Điểm 1: Bắt đầu ở trên cùng, giữa màn hình
+             { x: 0.5, y: 0.50 }, // Điểm 2: Đi qua chính giữa tâm
+             { x: 0.5, y: 0.75 }  // Điểm 3: Kết thúc ở dưới
+                ],
             currentIndex: 0,
             trail: [], particles: [], connectedPairs: [],
             cursor: { x: 0, y: 0 }, target: { x: 0, y: 0 },

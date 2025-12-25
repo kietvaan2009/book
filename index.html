@@ -150,7 +150,7 @@
 
     <div id="lock-overlay">
         <canvas id="lock-canvas"></canvas>
-        <div id="guide-text">Vẽ chữ 'I' để mở khóa</div>
+       <div id="guide-text">Nắm chặt tay (✊) để mở khóa</div>
         <div id="final-text">
             <span style="font-size: 2em; font-weight: 400; transform: scaleY(1.4); display: inline-block; transform-origin: bottom;">N</span>A YÊU
         </div>
@@ -527,53 +527,72 @@
         }
 
         function processGestures(landmarks) {
-            // NẾU CHƯA MỞ KHOÁ THÌ CHẶN ĐIỀU KHIỂN SÁCH
-            if (MagicLock.isLocked) return;
+                // 1. TÍNH TOÁN CỬ CHỈ TRƯỚC (Đưa đoạn này lên đầu)
+                const wrist = landmarks[0];
+                const tips = [4, 8, 12, 16, 20];
+                // Đếm số ngón tay đang duỗi thẳng
+                const extendedFingers = tips.filter(tip => {
+                    const dist = Math.sqrt(Math.pow(landmarks[tip].x - wrist.x, 2) + Math.pow(landmarks[tip].y - wrist.y, 2));
+                    // Nếu khoảng cách từ cổ tay đến đầu ngón tay > 0.25 thì tính là duỗi
+                    return dist > 0.25; 
+                }).length;
 
-            const wrist = landmarks[0];
-            const tips = [4, 8, 12, 16, 20];
-            const extendedFingers = tips.filter(tip => {
-                const dist = Math.sqrt(Math.pow(landmarks[tip].x - wrist.x, 2) + Math.pow(landmarks[tip].y - wrist.y, 2));
-                return dist > 0.25; 
-            }).length;
-
-            const handX = landmarks[0].x; 
-            const targetRotY = (0.5 - handX) * Math.PI * 1.5;
-            const handY = landmarks[0].y; 
-            const targetRotX = (handY - 0.5) * Math.PI * 2; 
-
-            if (bookWrapper) {
-                bookWrapper.userData.targetHandRotY = targetRotY;
-                bookWrapper.userData.targetHandRotX = targetRotX;
-            }
-
-            let currentGesture = "NONE";
-            const thumbIndexDist = Math.sqrt(Math.pow(landmarks[4].x - landmarks[8].x, 2) + Math.pow(landmarks[4].y - landmarks[8].y, 2));
-            
-            if (thumbIndexDist < 0.05 && extendedFingers >= 2) currentGesture = "OK";
-            else if (extendedFingers >= 4) currentGesture = "OPEN";
-            else if (extendedFingers <= 1) currentGesture = "FIST";
-
-            if (currentGesture !== lastGesture) {
-                lastGesture = currentGesture;
+                let currentGesture = "NONE";
+                // Tính khoảng cách ngón cái và trỏ cho nút OK
+                const thumbIndexDist = Math.sqrt(Math.pow(landmarks[4].x - landmarks[8].x, 2) + Math.pow(landmarks[4].y - landmarks[8].y, 2));
                 
-                if (currentGesture === "OPEN") {
-                    aiStatus.innerText = "🖐 STOP";
-                    aiStatus.style.color = "#f55";
-                    stopSequenceAndReset(); 
-                } 
-                else if (currentGesture === "FIST") {
-                    aiStatus.innerText = "✊ START";
-                    aiStatus.style.color = "#5f5";
-                    if (!isSequenceRunning) startAutoSequence();
+                if (thumbIndexDist < 0.05 && extendedFingers >= 2) currentGesture = "OK";
+                else if (extendedFingers >= 4) currentGesture = "OPEN";
+                else if (extendedFingers <= 1) currentGesture = "FIST"; // 0 hoặc 1 ngón duỗi = Nắm tay
+
+                // 2. LOGIC MỞ KHÓA MỚI
+                // Nếu vẫn CÒN KHÓA
+                if (MagicLock.isLocked) {
+                    // Nếu phát hiện nắm tay (FIST)
+                    if (currentGesture === "FIST") {
+                        // Gọi hàm mở khóa (hàm này có sẵn trong code cũ của bạn rồi)
+                        MagicLock.triggerUnlock();
+                        // Đổi màu thông báo cho ngầu
+                        aiStatus.innerText = "✊ UNLOCKING...";
+                        aiStatus.style.color = "#5f5";
+                    }
+                    // Quan trọng: Nếu chưa mở khóa xong thì DỪNG LẠI Ở ĐÂY, không chạy code điều khiển sách bên dưới
+                    return;
                 }
-                else if (currentGesture === "OK") {
-                    aiStatus.innerText = "👌 START";
-                    aiStatus.style.color = "#ff0";
-                    if (!isSequenceRunning && !isGalleryOpen) startAutoSequence();
+
+                // --- PHẦN DƯỚI NÀY CHỈ CHẠY KHI ĐÃ MỞ KHÓA ---
+                // (Code điều khiển sách cũ của bạn)
+                
+                const handX = landmarks[0].x; 
+                const targetRotY = (0.5 - handX) * Math.PI * 1.5;
+                const handY = landmarks[0].y; 
+                const targetRotX = (handY - 0.5) * Math.PI * 2; 
+
+                if (bookWrapper) {
+                    bookWrapper.userData.targetHandRotY = targetRotY;
+                    bookWrapper.userData.targetHandRotX = targetRotX;
+                }
+
+                if (currentGesture !== lastGesture) {
+                    lastGesture = currentGesture;
+                    
+                    if (currentGesture === "OPEN") {
+                        aiStatus.innerText = "🖐 STOP";
+                        aiStatus.style.color = "#f55";
+                        stopSequenceAndReset(); 
+                    } 
+                    else if (currentGesture === "FIST") {
+                        aiStatus.innerText = "✊ START";
+                        aiStatus.style.color = "#5f5";
+                        if (!isSequenceRunning) startAutoSequence();
+                    }
+                    else if (currentGesture === "OK") {
+                        aiStatus.innerText = "👌 START";
+                        aiStatus.style.color = "#ff0";
+                        if (!isSequenceRunning && !isGalleryOpen) startAutoSequence();
+                    }
                 }
             }
-        }
         
         function stopSequenceAndReset() {
             isSequenceRunning = false;

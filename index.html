@@ -329,7 +329,7 @@
         const SCENE_CONFIG = {
             spawn: { x: 0.3, y: 2.53, z: 5.0 },
             hover: { height: 5.4, radius: 4.113, centerX: 0.4, centerZ: 4.6, verticalStep: 0 },
-            fx: { stormCount: 15, stormSpeedBase: 0.08, stormSpreadRad: 1.57, bloomStrength: 0.1, bloomRadius: 0.352, bloomThreshold: 0.963 }
+            fx: { stormCount: 15, stormSpeedBase: 0.08, stormSpreadRad: 1.57, bloomStrength: 0.309, bloomRadius: 0.352, bloomThreshold: 0.963 }
         };
 
         // --- CỐT TRUYỆN 3 PHẦN ---
@@ -418,7 +418,7 @@
             
             controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.enableZoom = true;
 
-            const ambient = new THREE.AmbientLight(0xffffff, 1); 
+            const ambient = new THREE.AmbientLight(0xffffff, 5); 
             scene.add(ambient);
 
             const mainLight = new THREE.PointLight(0xffaa00, 30, 60); 

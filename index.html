@@ -151,9 +151,9 @@
     <div id="lock-overlay">
         <canvas id="lock-canvas"></canvas>
        <div id="guide-text">Nắm chặt tay (✊) để mở khóa</div>
-        <div id="final-text">
-            <span style="font-size: 2em; font-weight: 400; transform: scaleY(1.4); display: inline-block; transform-origin: bottom;">N</span>A YÊU
-        </div>
+       <div id="final-text">
+    <span style="font-size: 2em; font-weight: 400; transform: scaleY(1.4); display: inline-block; transform-origin: bottom;">T</span>ah Panh
+       </div>
     </div>
 
     <div id="vignette"></div>
@@ -416,7 +416,7 @@
             ); 
             composer = new EffectComposer(renderer); composer.addPass(renderScene); composer.addPass(bloomPass);
             
-            controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.enableZoom = false;
+            controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.enableZoom = true;
 
             const ambient = new THREE.AmbientLight(0xffffff, 5); 
             scene.add(ambient);
